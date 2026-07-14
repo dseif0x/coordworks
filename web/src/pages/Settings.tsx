@@ -127,7 +127,7 @@ function ProviderModal({ provider, onClose, onSaved, onError }: { provider: Prov
   return (
     <Modal title={provider ? `Edit ${provider.name}` : 'Add provider'} onClose={onClose}>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Name</label>
             <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Anthropic prod" />
@@ -152,7 +152,7 @@ function ProviderModal({ provider, onClose, onSaved, onError }: { provider: Prov
           <input className="input font-mono" type="password" value={form.api_key} onChange={(e) => setForm({ ...form, api_key: e.target.value })} placeholder="sk-…" />
           <p className="text-xs text-dim mt-1">Stored server-side, never sent back to the browser.</p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Models (comma-separated)</label>
             <input className="input font-mono" value={form.models} onChange={(e) => setForm({ ...form, models: e.target.value })} placeholder={placeholderModels[form.kind]} />

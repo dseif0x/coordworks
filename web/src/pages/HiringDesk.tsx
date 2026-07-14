@@ -92,7 +92,7 @@ export default function HiringDesk() {
             </div>
           )}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Name</label>
                 <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Avery" />
@@ -102,7 +102,7 @@ export default function HiringDesk() {
                 <input className="input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g. Content Writer" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Department</label>
                 <select className="input" value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}>
@@ -120,7 +120,7 @@ export default function HiringDesk() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Provider</label>
                 <select className="input" value={form.provider_id} onChange={(e) => setForm({ ...form, provider_id: e.target.value, model: '' })}>

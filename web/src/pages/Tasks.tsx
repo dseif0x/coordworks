@@ -119,7 +119,7 @@ function NewTaskModal({
           <label className="label">Instructions</label>
           <textarea className="input" rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Context, constraints, expected outcome…" />
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="label">Department</label>
             <select className="input" value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value, agent_id: '' })}>
