@@ -1,0 +1,81 @@
+# Default values for the coordworks chart.
+
+image:
+  repository: ghcr.io/dseif0x/coordworks
+  # Defaults to the chart's appVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+auth:
+  # Shared secret runners use to authenticate with the control plane.
+  # Required unless existingSecret is set.
+  runnerToken: ""
+  # Optional bearer token protecting the UI/API. Empty disables API auth.
+  apiToken: ""
+  # Use an existing Secret instead of creating one. It must contain the key
+  # "runner-token" and may contain "api-token".
+  existingSecret: ""
+
+server:
+  # The control plane keeps state in SQLite, so it always runs as a single
+  # replica (deployment uses strategy Recreate).
+  embeddedRunner: true
+  podAnnotations: {}
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+persistence:
+  enabled: true
+  size: 1Gi
+  # Empty uses the cluster's default StorageClass.
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  # Mount an existing PVC instead of creating one.
+  existingClaim: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  # IngressClass name, e.g. "nginx" or "traefik". Empty uses the default.
+  className: ""
+  # e.g. cert-manager.io/cluster-issuer: letsencrypt-prod
+  annotations: {}
+  hosts:
+    - host: coordworks.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: coordworks-tls
+  #    hosts:
+  #      - coordworks.example.com
+
+runner:
+  # Dedicated runner fleet in addition to (or instead of) the embedded runner.
+  enabled: true
+  replicas: 2
+  image:
+    repository: ghcr.io/dseif0x/coordworks-runner
+    tag: ""
+    pullPolicy: IfNotPresent
+  # Labels the runners advertise; agents with a matching runner selector
+  # (e.g. "runtime=k8s") are pinned to this fleet.
+  labels: "runtime=k8s"
+  podAnnotations: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

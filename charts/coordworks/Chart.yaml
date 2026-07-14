@@ -1,0 +1,17 @@
+apiVersion: v2
+name: coordworks
+description: >-
+  CoordWorks — run a company staffed by AI agents. Control plane with
+  human-in-the-loop plan approvals, plus a scalable fleet of execution
+  runners.
+type: application
+version: 0.1.0
+appVersion: "latest"
+home: https://github.com/dseif0x/coordworks
+sources:
+  - https://github.com/dseif0x/coordworks
+keywords:
+  - ai
+  - agents
+  - llm
+  - orchestration

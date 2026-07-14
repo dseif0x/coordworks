@@ -1,0 +1,64 @@
+name: helm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "charts/**"
+      - ".github/workflows/helm.yml"
+  pull_request:
+    paths:
+      - "charts/**"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - run: helm lint charts/coordworks --set auth.runnerToken=ci
+      - run: helm template charts/coordworks --set auth.runnerToken=ci >/dev/null
+      # Render once more with ingress + TLS enabled to keep that path honest.
+      - run: |
+          helm template charts/coordworks \
+            --set auth.runnerToken=ci \
+            --set ingress.enabled=true \
+            --set ingress.className=nginx \
+            --set ingress.hosts[0].host=coordworks.example.com \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.tls[0].secretName=coordworks-tls \
+            --set ingress.tls[0].hosts[0]=coordworks.example.com >/dev/null
+
+  # Publishes packaged charts as GitHub Releases and maintains the Helm repo
+  # index on the gh-pages branch (served at https://<owner>.github.io/<repo>).
+  release:
+    if: github.event_name != 'pull_request'
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create gh-pages branch if missing
+        run: |
+          if ! git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout --orphan gh-pages
+            git rm -rf . >/dev/null 2>&1 || true
+            git commit --allow-empty -m "Initialize Helm chart repository"
+            git push origin gh-pages
+            git checkout "$GITHUB_SHA"
+          fi
+
+      - uses: azure/setup-helm@v4
+
+      - uses: helm/chart-releaser-action@v1.7.0
+        with:
+          charts_dir: charts
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}

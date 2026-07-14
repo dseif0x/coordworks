@@ -1,0 +1,22 @@
+CoordWorks {{ .Chart.AppVersion }} deployed.
+
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+Open http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }} to reach the command center.
+{{- end }}
+{{- else }}
+The UI is not exposed via Ingress. Reach it with a port-forward:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "coordworks.fullname" . }} 8080:{{ .Values.service.port }}
+
+then open http://localhost:8080.
+{{- end }}
+
+{{- if .Values.runner.enabled }}
+A fleet of {{ .Values.runner.replicas }} runner(s) with labels "{{ .Values.runner.labels }}" is connecting
+to the control plane. Pin agents to it with a matching runner selector.
+{{- end }}
+
+First steps in the UI: Settings -> add an LLM provider, Organization -> create
+a department, Hiring Desk -> hire staff, Tasks -> hand out work. Plans wait in
+Approvals for your sign-off before anything executes.

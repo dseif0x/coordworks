@@ -106,10 +106,40 @@ COORDWORKS_RUNNER_TOKEN=$(openssl rand -hex 16) docker compose up --build
 docker compose up --scale runner=4
 ```
 
-### Kubernetes runners
+### Kubernetes (Helm)
 
-Build/push the runner image, edit the secret + server URL in
-`deploy/k8s/runner-deployment.yaml`, then:
+The chart deploys the control plane (with persistent SQLite storage) plus a
+scalable runner fleet, and supports Ingress with TLS. It is published to
+GitHub Pages via chart-releaser:
+
+```bash
+helm repo add coordworks https://dseif0x.github.io/coordworks
+helm install coordworks coordworks/coordworks \
+  --set auth.runnerToken=$(openssl rand -hex 16) \
+  --set runner.replicas=3
+```
+
+With Ingress + TLS (e.g. nginx + cert-manager):
+
+```bash
+helm install coordworks coordworks/coordworks \
+  --set auth.runnerToken=$(openssl rand -hex 16) \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set 'ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod' \
+  --set ingress.hosts[0].host=coordworks.example.com \
+  --set ingress.hosts[0].paths[0].path=/ \
+  --set ingress.tls[0].secretName=coordworks-tls \
+  --set ingress.tls[0].hosts[0]=coordworks.example.com
+```
+
+See `charts/coordworks/values.yaml` for all options (existing secrets,
+persistence, runner labels/placement, resources). To install straight from
+the repo without the chart repository: `helm install coordworks
+charts/coordworks --set auth.runnerToken=...`.
+
+Plain manifests for just a runner fleet (no Helm) remain in
+`deploy/k8s/runner-deployment.yaml`:
 
 ```bash
 kubectl apply -f deploy/k8s/runner-deployment.yaml
