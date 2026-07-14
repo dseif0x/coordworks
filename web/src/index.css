@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-panel: #12151c;
+  --color-panel-2: #181c26;
+  --color-edge: #262b38;
+  --color-ink: #e5e9f0;
+  --color-dim: #8b93a7;
+  --color-accent: #22d3ee;
+  --color-warn: #fbbf24;
+  --color-ok: #34d399;
+  --color-bad: #f87171;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+body {
+  @apply bg-[#0a0c10] text-ink antialiased;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.card {
+  @apply bg-panel border border-edge rounded-xl;
+}
+
+.btn,
+.btn-primary,
+.btn-ok,
+.btn-bad,
+.btn-warn {
+  @apply px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+.btn {
+  @apply border-edge bg-panel-2 hover:border-accent/60;
+}
+
+.btn-primary {
+  @apply bg-accent/15 border-accent/50 text-accent hover:bg-accent/25;
+}
+
+.btn-ok {
+  @apply bg-ok/15 border-ok/50 text-ok hover:bg-ok/25;
+}
+
+.btn-bad {
+  @apply bg-bad/10 border-bad/40 text-bad hover:bg-bad/20;
+}
+
+.btn-warn {
+  @apply bg-warn/10 border-warn/40 text-warn hover:bg-warn/20;
+}
+
+.input {
+  @apply w-full bg-panel-2 border border-edge rounded-lg px-3 py-2 text-sm text-ink placeholder-dim focus:outline-none focus:border-accent/60;
+}
+
+.label {
+  @apply block text-xs uppercase tracking-wider text-dim mb-1;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border;
+}

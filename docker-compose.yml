@@ -1,0 +1,32 @@
+# CoordWorks: control plane + one docker runner.
+# Set COORDWORKS_RUNNER_TOKEN in your environment or a .env file.
+services:
+  server:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.server
+    ports:
+      - "8080:8080"
+    environment:
+      COORDWORKS_RUNNER_TOKEN: ${COORDWORKS_RUNNER_TOKEN:?set a shared runner token}
+      COORDWORKS_API_TOKEN: ${COORDWORKS_API_TOKEN:-}
+      # The embedded runner gives you a working system with zero extra nodes.
+      COORDWORKS_EMBEDDED_RUNNER: "true"
+    volumes:
+      - coordworks-data:/data
+
+  runner:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.runner
+    depends_on:
+      - server
+    environment:
+      COORDWORKS_SERVER_URL: http://server:8080
+      COORDWORKS_RUNNER_TOKEN: ${COORDWORKS_RUNNER_TOKEN:?set a shared runner token}
+      COORDWORKS_RUNNER_LABELS: runtime=docker
+    deploy:
+      replicas: 1 # scale with: docker compose up --scale runner=4
+
+volumes:
+  coordworks-data:

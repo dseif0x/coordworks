@@ -1,0 +1,27 @@
+# Control plane image: Go API + built web UI in one container.
+FROM node:22-alpine AS web
+WORKDIR /app/web
+COPY web/package.json web/package-lock.json* ./
+RUN npm install
+COPY web/ ./
+RUN npm run build
+
+FROM golang:1.24-alpine AS build
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY cmd/ cmd/
+COPY internal/ internal/
+RUN CGO_ENABLED=0 go build -o /coordworks-server ./cmd/server
+
+FROM alpine:3.21
+RUN apk add --no-cache ca-certificates && adduser -D coordworks
+USER coordworks
+WORKDIR /data
+COPY --from=build /coordworks-server /usr/local/bin/coordworks-server
+COPY --from=web /app/web/dist /srv/web
+ENV COORDWORKS_DB=/data/coordworks.db \
+    COORDWORKS_STATIC_DIR=/srv/web \
+    COORDWORKS_ADDR=:8080
+EXPOSE 8080
+ENTRYPOINT ["coordworks-server"]

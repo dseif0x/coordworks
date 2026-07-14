@@ -1,0 +1,49 @@
+# Kubernetes runner fleet. Point it at your control plane and scale replicas;
+# each pod registers itself and claims work matching its labels.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: coordworks-runner-token
+type: Opaque
+stringData:
+  token: change-me # must match the control plane's COORDWORKS_RUNNER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coordworks-runner
+  labels:
+    app: coordworks-runner
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: coordworks-runner
+  template:
+    metadata:
+      labels:
+        app: coordworks-runner
+    spec:
+      containers:
+        - name: runner
+          image: ghcr.io/dseif0x/coordworks-runner:latest # build from deploy/docker/Dockerfile.runner
+          env:
+            - name: COORDWORKS_SERVER_URL
+              value: "http://coordworks-server:8080" # or your external control plane URL
+            - name: COORDWORKS_RUNNER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: coordworks-runner-token
+                  key: token
+            - name: COORDWORKS_RUNNER_LABELS
+              value: "runtime=k8s"
+            - name: COORDWORKS_RUNNER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
