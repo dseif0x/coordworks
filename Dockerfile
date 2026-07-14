@@ -6,20 +6,21 @@
 # For a dedicated runner image (scale-out on docker/k8s/bare metal) see
 # deploy/docker/Dockerfile.runner; docker-compose.yml wires both together.
 
-FROM node:22-alpine AS web
+FROM --platform=$BUILDPLATFORM node:22-alpine AS web
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json* ./
 RUN npm install
 COPY web/ ./
 RUN npm run build
 
-FROM golang:1.25-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd/ cmd/
 COPY internal/ internal/
-RUN CGO_ENABLED=0 go build -o /coordworks-server ./cmd/server
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /coordworks-server ./cmd/server
 
 FROM alpine:3.21
 # CA bundle comes from the build stage (LLM APIs are HTTPS); adduser is a
