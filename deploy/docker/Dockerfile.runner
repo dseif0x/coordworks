@@ -1,5 +1,5 @@
 # Runner image: stateless execution node, scale horizontally anywhere.
-FROM golang:1.24-alpine AS build
+FROM golang:1.25-alpine AS build
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
@@ -8,7 +8,10 @@ COPY internal/ internal/
 RUN CGO_ENABLED=0 go build -o /coordworks-runner ./cmd/runner
 
 FROM alpine:3.21
-RUN apk add --no-cache ca-certificates && adduser -D coordworks
+# CA bundle comes from the build stage (LLM APIs are HTTPS); adduser is a
+# busybox builtin, so no packages need to be installed here.
+RUN adduser -D coordworks
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 USER coordworks
 COPY --from=build /coordworks-runner /usr/local/bin/coordworks-runner
 ENV COORDWORKS_RUNNER_LABELS=runtime=docker

@@ -1,4 +1,11 @@
-# Control plane image: Go API + built web UI in one container.
+# All-in-one CoordWorks image: control plane + web UI + embedded runner.
+# Build:  docker build -t coordworks .
+# Run:    docker run -p 8080:8080 -e COORDWORKS_RUNNER_TOKEN=$(openssl rand -hex 16) \
+#           -v coordworks-data:/data coordworks
+#
+# For a dedicated runner image (scale-out on docker/k8s/bare metal) see
+# deploy/docker/Dockerfile.runner; docker-compose.yml wires both together.
+
 FROM node:22-alpine AS web
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json* ./

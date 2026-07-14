@@ -69,8 +69,23 @@ inbox → planning → awaiting_approval → executing → done
 
 ## Quick start
 
+### Docker (fastest)
+
 ```bash
-# 1. build everything (Go 1.24+, Node 22+)
+docker build -t coordworks .
+docker run -p 8080:8080 \
+  -e COORDWORKS_RUNNER_TOKEN=$(openssl rand -hex 16) \
+  -v coordworks-data:/data coordworks
+# open http://localhost:8080
+```
+
+The root `Dockerfile` builds the all-in-one image: control plane + web UI +
+embedded runner. SQLite state lives in the `/data` volume.
+
+### From source
+
+```bash
+# 1. build everything (Go 1.25+, Node 22+)
 make build
 
 # 2. run the control plane (embedded runner included)
